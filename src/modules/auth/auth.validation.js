@@ -9,6 +9,7 @@ export const add = {
     DOB: Joi.date(),
     password: generalFields.password.required(),
     cPassword: generalFields.cPassword.required(),
+    role: Joi.string().valid("Admin", "User"),
   }).required(),
   params: Joi.object({}).required(),
   query: Joi.object({}).required(),

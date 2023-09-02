@@ -21,13 +21,13 @@ export const add = async (req, res, next) => {
     parseInt(process.env.SALT_ROUND)
   );
   const phoneEnc = cryptojs.AES.encrypt(
-    password,
+    phone,
     process.env.ENCRYPTION_KEY
   ).toString();
 
   const { public_id, secure_url } = await cloudinary.uploader.upload(
     req.file.path,
-    { folder: "ecoomece/user" }
+    { folder: "ecommerce/user" }
   );
 
   const user = await userModel.create({
@@ -40,6 +40,7 @@ export const add = async (req, res, next) => {
       secure_url,
     },
     DOB,
+    role:req.body.role? req.body.role : 'User'
   });
   const code = nanoid(6);
   const html = htmlTemplate(code);
