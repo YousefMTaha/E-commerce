@@ -129,7 +129,7 @@ export const createOrder = async (req, res, next) => {
         };
       }),
     });
-    return res.json({ url: payment.url });
+    req.body.payment = payment
   }
 
   await cartModel.updateOne(
@@ -159,7 +159,9 @@ export const createOrder = async (req, res, next) => {
     );
   }
 
-  return res.status(StatusCodes.ACCEPTED).json({ message: "done", order });
+  return paymentMethod == "cash"
+    ? res.status(StatusCodes.ACCEPTED).json({ message: "done", order })
+    : res.json({ url: req.body.payment.url });
 };
 
 export const webhook = async (req, res) => {

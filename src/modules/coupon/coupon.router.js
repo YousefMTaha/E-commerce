@@ -19,5 +19,11 @@ router.get(
   validation(validator.getCoupon),
   asyncHandler(couponController.getAllCoupons)
 );
+router.put(
+  "/:id",
+  auth(couponEndPoint.CURDoperation),
+  validation(validator.update),
+  asyncHandler(couponController.updateCoupon)
+);
 
 export default router;

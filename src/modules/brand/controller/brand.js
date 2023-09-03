@@ -10,7 +10,7 @@ export const add = async (req, res, next) => {
   const { name } = req.body;
 
   const checkName = await brandModel.findOne({ name });
-  if (!checkName)
+  if (checkName)
     return next(
       new ModifyError("Brand is already exist", StatusCodes.CONFLICT)
     );

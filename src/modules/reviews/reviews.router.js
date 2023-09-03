@@ -7,11 +7,22 @@ import { asyncHandler } from "../../utils/errorHandling.js";
 import reviewEndpoint from "./reviews.endPoint.js";
 const router = Router();
 
-router.get(
-  "/:id",
-  auth(reviewEndpoint.CURDoperation),
-  validation(validator.add),
-  asyncHandler(reviewController.add)
-);
+router
+  .route("/:id")
+  .get(
+    auth(reviewEndpoint.CURDoperation),
+    validation(validator.add),
+    asyncHandler(reviewController.add)
+  )
+  .put(
+    auth(reviewEndpoint.CURDoperation),
+    validation(validator.update),
+    asyncHandler(reviewController.update)
+  )
+  .delete(
+    auth(reviewEndpoint.CURDoperation),
+    validation(validator.remove),
+    asyncHandler(reviewController.remove)
+  );
 
 export default router;

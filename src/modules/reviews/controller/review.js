@@ -3,6 +3,7 @@ import productModel from "../../../../DB/model/Product.model.js";
 import reviewModel from "../../../../DB/model/Review.model.js";
 import { ModifyError } from "../../../utils/classError.js";
 import { StatusCodes } from "http-status-codes";
+
 export const add = async (req, res, next) => {
   const { content, rating } = req.body;
   const productId = req.params.id;
@@ -10,7 +11,7 @@ export const add = async (req, res, next) => {
     userId: req.user._id,
     "products.productId": productId,
   });
-  if (isAuth.status != "delivered") {
+  if (isAuth?.status != "delivered") {
     return next(
       new ModifyError(
         "You need to try product first before review it",
@@ -47,4 +48,56 @@ export const add = async (req, res, next) => {
     createdBy: req.user._id,
   });
   return res.status(StatusCodes.ACCEPTED).json({ message: "done", review });
+};
+
+export const remove = async (req, res, next) => {
+  const { id } = req.params;
+  const checkReview = await reviewModel.findById(id);
+  if (!checkReview)
+    return next(
+      new ModifyError("The review doesn't exist", StatusCodes.NOT_FOUND)
+    );
+
+  const product = await productModel.findOne({
+    _id: checkReview.productId,
+  });
+  const newAvgRate =
+    product.rateNo == 1
+      ? 0
+      : (product.avgRate * rateNo - checkReview.rating) / (product.rateNo - 1);
+  await productModel.updateOne(
+    { _id: product._id },
+    {
+      avgRate: newAvgRate,
+      $inc: { rateNo: -1 },
+    }
+  );
+  await reviewModel.deleteOne({
+    _id: id,
+  });
+  return res.status(StatusCodes.ACCEPTED).json({ message: "done" });
+};
+
+export const update = async (req, res, next) => {
+  const { id } = req.params;
+  const checkReview = await reviewModel.findById(id);
+
+  if (!checkReview)
+    return next(new ModifyError("review not found", StatusCodes.NOT_FOUND));
+  if (req.body.rating) {
+    const product = await productModel.findById(checkReview.productId);
+    const newAvgRate =
+      (product.avgRate * product.rateNo -
+        checkReview.rating +
+        req.body.rating) /
+      product.rateNo;
+    await productModel.updateOne(
+      { _id: product._id },
+      {
+        avgRate: newAvgRate,
+      }
+    );
+  }
+  await reviewModel.updateOne({ _id: id }, req.body);
+  return res.status(StatusCodes.ACCEPTED).json({ message: "done" });
 };
