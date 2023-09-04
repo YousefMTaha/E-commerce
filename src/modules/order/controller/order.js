@@ -6,6 +6,10 @@ import orderModel from "../../../../DB/model/Order.model.js";
 import couponModel from "../../../../DB/model/Coupon.model.js";
 import cartModel from "../../../../DB/model/Cart.model.js";
 import Stripe from "stripe";
+import createInvoice from "../../../utils/create invoice.js";
+import { sendEmail } from "../../../utils/email.js";
+import path from "path";
+import { fileURLToPath } from "url";
 const stripe = new Stripe(process.env.PAYMENT_SECRET_KEY);
 
 export const createOrder = async (req, res, next) => {
@@ -66,6 +70,7 @@ export const createOrder = async (req, res, next) => {
     orderProducts.push({
       productId: checkProduct._id,
       name: checkProduct.name,
+      description: checkProduct.description,
       price: checkProduct.price,
       paymentPrice: checkProduct.paymentPrice,
       quantity: product.quantity,
@@ -95,6 +100,39 @@ export const createOrder = async (req, res, next) => {
     paymentPrice,
     status: req.body.status,
     reason: req.body.notes,
+  });
+
+  const invoice = {
+    customer: {
+      email: req.user.email,
+      paymentPrice,
+      price: totalPrice,
+      userName: req.user.userName,
+      address,
+    },
+    items: orderProducts.map((ele) => {
+      return {
+        item: ele.name,
+        description: ele.description,
+        quantity: ele.quantity,
+        amount: ele.paymentPrice,
+      };
+    }),
+      subtotal: totalPrice,
+  };
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  const pdfPath = path.join(__dirname, `../../../utils/pdf/${req.user._id}.pdf`);
+  createInvoice(invoice, pdfPath);
+  sendEmail({
+    to: req.user.email,
+    subject: `Order PDF`,
+    attachments: [
+      {
+        fileName: `${req.user.userName} Order.pdf`,
+        path: pdfPath,
+        type: "application/pdf",
+      },
+    ],
   });
 
   if (paymentMethod == "card") {
@@ -129,7 +167,7 @@ export const createOrder = async (req, res, next) => {
         };
       }),
     });
-    req.body.payment = payment
+    req.body.payment = payment;
   }
 
   await cartModel.updateOne(
