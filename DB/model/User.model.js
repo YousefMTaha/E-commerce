@@ -1,4 +1,4 @@
-import mongoose, { Schema, model } from "mongoose";
+import mongoose, { Schema, Types, model } from "mongoose";
 
 const userSchema = new Schema(
   {
@@ -42,6 +42,10 @@ const userSchema = new Schema(
     image: Object,
     DOB: String,
     code: String,
+    favorites: [{
+      type: Types.ObjectId,
+      ref: "Product",
+    }],
   },
   {
     timestamps: true,

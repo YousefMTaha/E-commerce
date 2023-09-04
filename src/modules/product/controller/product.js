@@ -114,6 +114,7 @@ export const remove = async (req, res, next) => {
       }
     );
   }
+  
   return res.status(200).json({ message: "done" });
 };
 

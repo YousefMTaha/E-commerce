@@ -67,10 +67,25 @@ export const addToCart = async (req, res, next) => {
 };
 
 export const getCart = async (req, res, next) => {
-  const cart = await cartModel.findOne({ userId: req.user._id });
+  const cart = await cartModel.findOne({ userId: req.user._id }).populate([
+    {
+      path: "products.productId",
+      select: "name description stock price paymentPrice discount",
+    },
+  ]);
   if (!cart.products.length)
     return next(new ModifyError("Cart is empty", StatusCodes.NOT_FOUND));
-  return res.status(StatusCodes.ACCEPTED).json({ message: "done", cart });
+  let totalPrice = 0;
+  cart.products = cart.products.filter((ele) => {
+    if (ele.productId && ele.productId.stock) {
+      totalPrice += ele.quantity * ele.productId.paymentPrice;
+      return ele;
+    }
+  });
+  cart.save();
+  return res
+    .status(StatusCodes.ACCEPTED)
+    .json({ message: "done", cart, totalPrice });
 };
 
 export const removeFromCart = async (req, res, next) => {
