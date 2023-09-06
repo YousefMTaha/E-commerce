@@ -67,6 +67,14 @@ export const createOrder = async (req, res, next) => {
         )
       );
     }
+    if (product.quantity > checkProduct.stock) {
+      return next(
+        new ModifyError(
+          `available stock is ${checkProduct.stock}`,
+          StatusCodes.BAD_REQUEST
+        )
+      );
+    }
     orderProducts.push({
       productId: checkProduct._id,
       name: checkProduct.name,
@@ -100,6 +108,7 @@ export const createOrder = async (req, res, next) => {
     paymentPrice,
     status: req.body.status,
     reason: req.body.notes,
+    coupon: req.body.coupon?.code,
   });
 
   const invoice = {
@@ -118,10 +127,13 @@ export const createOrder = async (req, res, next) => {
         amount: ele.paymentPrice,
       };
     }),
-      subtotal: totalPrice,
+    subtotal: totalPrice,
   };
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
-  const pdfPath = path.join(__dirname, `../../../utils/pdf/${req.user._id}.pdf`);
+  const pdfPath = path.join(
+    __dirname,
+    `../../../utils/pdf/${req.user._id}.pdf`
+  );
   createInvoice(invoice, pdfPath);
   sendEmail({
     to: req.user.email,
@@ -225,4 +237,45 @@ export const webhook = async (req, res) => {
   } else {
     console.log(`Unhandled event type ${event.type}`);
   }
+};
+
+export const cancelOrder = async (req, res, next) => {
+  const { id } = req.params;
+  const order = await orderModel.findById(id);
+  if (!order)
+    return next(new ModifyError("order doesn't exist", StatusCodes.NOT_FOUND));
+
+  if (req.user._id != order.userId.toString()) {
+    return next(
+      new ModifyError("This order not belong to you", StatusCodes.BAD_REQUEST)
+    );
+  }
+  const cancelOrderStatus = ["delivered", "canceled"];
+  if (cancelOrderStatus.includes(order.status)) {
+    return next(
+      new ModifyError(
+        "this Order can't be cancelled or already canceled",
+        StatusCodes.BAD_REQUEST
+      )
+    );
+  }
+  for (const product of order.products) {
+    await productModel.findByIdAndUpdate(product.productId, {
+      $inc: { stock: product.quantity },
+    });
+  }
+
+  if (order.coupon) {
+    await couponModel.findOneAndUpdate(
+      {
+        code: order.coupon,
+      },
+      {
+        $pull: { usedBy: req.user._id },
+      }
+    );
+  }
+  order.status = 'canceled'
+  await order.save()
+  return res.status(StatusCodes.ACCEPTED).json({ message: "done" });
 };

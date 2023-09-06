@@ -15,6 +15,7 @@ const orderSchema = new Schema(
     ],
     phone: { type: String, required: true },
     price: { type: Number, required: true },
+    coupon: String,
     paymentPrice: { type: Number, required: true },
     paymentMethod: { type: String, enum: ["cash", "card"], default: "cash" },
     status: {

@@ -13,5 +13,5 @@ router.get(
   asyncHandler(orderController.createOrder)
 );
 router.post("/webhook", asyncHandler(orderController.webhook));
-
+router.put("/cancel-order/:id",  auth(orderEndpoint.CURDoperation),asyncHandler(orderController.cancelOrder));
 export default router;
