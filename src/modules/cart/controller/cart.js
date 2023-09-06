@@ -148,7 +148,7 @@ export const updateCart = async (req, res, next) => {
     }
   );
   console.log({ test });
-  console.log({cart});
+  // console.log({cart});
   // cart.products.quantity = quantity;
   // await cart.save();
   return res.status(StatusCodes.ACCEPTED).json({ message: "done" });
