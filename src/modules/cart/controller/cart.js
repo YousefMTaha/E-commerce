@@ -9,11 +9,6 @@ export const addToCart = async (req, res, next) => {
   if (!checkProduct)
     return next(new ModifyError("Product is not exist", StatusCodes.NOT_FOUND));
 
-  // if (!checkProduct.stock) {
-
-  //   return next(new ModifyError("out of stock", StatusCodes.BAD_REQUEST));
-  //   // }
-
   if (quantity > checkProduct.stock || !checkProduct.stock) {
     await productModule.updateOne(
       { _id: productId },
