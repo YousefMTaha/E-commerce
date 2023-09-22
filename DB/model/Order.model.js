@@ -23,7 +23,7 @@ const orderSchema = new Schema(
       enum: ["placed", "delivered", "waitingPayment", "canceled"],
       default: "placed",
     },
-    reason: String,
+    notes: String,
   },
   {
     timestamps: true,

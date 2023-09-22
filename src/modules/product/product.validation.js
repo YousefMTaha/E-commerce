@@ -63,11 +63,3 @@ export const update = {
     image: Joi.array().items(generalFields.file).length(1),
   }),
 };
-
-// export const remove = {
-//   body: Joi.object({}).required(),
-//   params: Joi.object({
-//     id: generalFields.id.required(),
-//   }).required(),
-//   query: Joi.object({}).required(),
-// };

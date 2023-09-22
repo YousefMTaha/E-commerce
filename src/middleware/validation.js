@@ -1,15 +1,11 @@
 import { StatusCodes } from "http-status-codes";
 import joi from "joi";
 import { Types } from "mongoose";
-const dataMethods = ["body", "params", "query", "headers", "file","files"];
+const dataMethods = ["body", "params", "query", "headers", "file", "files"];
 
-const validateObjectId = (value, helper) => {
-  if (Types.ObjectId.isValid(value)) {
-    return true;
-  } else {
-    return helper.message("In-valid objectId");
-  }
-};
+const validateObjectId = (value, helper) =>
+  Types.ObjectId.isValid(value) ? true : helper.message("In-valid objectId");
+
 export const generalFields = {
   email: joi.string().email({
     minDomainSegments: 2,

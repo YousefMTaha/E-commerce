@@ -15,7 +15,6 @@ const stripe = new Stripe(process.env.PAYMENT_SECRET_KEY);
 export const createOrder = async (req, res, next) => {
   const { address, coupon, phone, paymentMethod } = req.body;
   let { products } = req.body;
-  console.log({ products });
   if (coupon) {
     const checkCoupon = await couponModel.findOne({
       code: coupon,

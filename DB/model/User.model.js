@@ -27,18 +27,11 @@ const userSchema = new Schema(
       enum: ["User", "Admin"],
     },
 
-    active: {
-      type: Boolean,
-      default: false,
-    },
     confirmEmail: {
       type: Boolean,
       default: false,
     },
-    blocked: {
-      type: Boolean,
-      default: false,
-    },
+
     image: Object,
     DOB: String,
     code: String,
