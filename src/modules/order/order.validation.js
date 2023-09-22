@@ -16,7 +16,7 @@ export const create = {
     address: generalFields.name.required(),
     phone: generalFields.phone.required(),
     coupon: generalFields.name.required(),
-    products: Joi.custom({
+    products: Joi.array().items({
       productId: generalFields.id.required(),
       quantity: Joi.number().min(0).required(),
     }).required(),
