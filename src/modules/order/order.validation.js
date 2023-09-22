@@ -16,7 +16,10 @@ export const create = {
     address: generalFields.name.required(),
     phone: generalFields.phone.required(),
     coupon: generalFields.name.required(),
-    products: Joi.custom(productValidation).required(),
+    products: Joi.custom({
+      productId: generalFields.id.required(),
+      quantity: Joi.number().min(0).required(),
+    }).required(),
     paymentMethod: Joi.string().valid("cash", "card"),
     status: Joi.string().valid(
       "placed",
