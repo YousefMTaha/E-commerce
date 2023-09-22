@@ -5,7 +5,7 @@ const productValidation = (value, helper) => {
   const schema = Joi.object({
     value: Joi.array().items({
       productId: generalFields.id.required(),
-      quantity: Joi.number().min(0).required(),
+      quantity: Joi.number().min(1).required(),
     }),
   });
   const result = schema.valid({ value });
