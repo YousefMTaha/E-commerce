@@ -15,6 +15,7 @@ const stripe = new Stripe(process.env.PAYMENT_SECRET_KEY);
 export const createOrder = async (req, res, next) => {
   const { address, coupon, phone, paymentMethod } = req.body;
   let { products } = req.body;
+  console.log({ products });
   if (coupon) {
     const checkCoupon = await couponModel.findOne({
       code: coupon,
@@ -107,45 +108,45 @@ export const createOrder = async (req, res, next) => {
     paymentMethod,
     paymentPrice,
     status: req.body.status,
-    reason: req.body.notes,
+    notes: req.body.notes,
     coupon: req.body.coupon?.code,
   });
 
-  const invoice = {
-    customer: {
-      email: req.user.email,
-      paymentPrice,
-      price: totalPrice,
-      userName: req.user.userName,
-      address,
-    },
-    items: orderProducts.map((ele) => {
-      return {
-        item: ele.name,
-        description: ele.description,
-        quantity: ele.quantity,
-        amount: ele.paymentPrice,
-      };
-    }),
-    subtotal: totalPrice,
-  };
-  const __dirname = path.dirname(fileURLToPath(import.meta.url));
-  const pdfPath = path.join(
-    __dirname,
-    `../../../utils/pdf/${req.user._id}.pdf`
-  );
-  createInvoice(invoice, pdfPath);
-  sendEmail({
-    to: req.user.email,
-    subject: `Order PDF`,
-    attachments: [
-      {
-        fileName: `${req.user.userName} Order.pdf`,
-        path: pdfPath,
-        type: "application/pdf",
-      },
-    ],
-  });
+  // const invoice = {
+  //   customer: {
+  //     email: req.user.email,
+  //     paymentPrice,
+  //     price: totalPrice,
+  //     userName: req.user.userName,
+  //     address,
+  //   },
+  //   items: orderProducts.map((ele) => {
+  //     return {
+  //       item: ele.name,
+  //       description: ele.description,
+  //       quantity: ele.quantity,
+  //       amount: ele.paymentPrice,
+  //     };
+  //   }),
+  //   subtotal: totalPrice,
+  // };
+  // const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  // const pdfPath = path.join(
+  //   __dirname,
+  //   `../../../utils/pdf/${req.user._id}.pdf`
+  // );
+  // createInvoice(invoice, pdfPath);
+  // sendEmail({
+  //   to: req.user.email,
+  //   subject: `Order PDF`,
+  //   attachments: [
+  //     {
+  //       fileName: `${req.user.userName} Order.pdf`,
+  //       path: pdfPath,
+  //       type: "application/pdf",
+  //     },
+  //   ],
+  // });
 
   if (paymentMethod == "card") {
     if (req.body.coupon) {
@@ -275,7 +276,7 @@ export const cancelOrder = async (req, res, next) => {
       }
     );
   }
-  order.status = 'canceled'
-  await order.save()
+  order.status = "canceled";
+  await order.save();
   return res.status(StatusCodes.ACCEPTED).json({ message: "done" });
 };
