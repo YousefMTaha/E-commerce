@@ -78,11 +78,11 @@ export const add = async (req, res, next) => {
 
 export const search = async (req, res, next) => {
   const apiFeatures = new ApiFeatures(productModel.find(), req.query)
-  .search()
-  .select()
-  .filter()
-  .pagination()
-  .sort()
+    .search()
+    .select()
+    .filter()
+    .pagination()
+    .sort();
   const product = await apiFeatures.mongooseQuery;
   if (!req.query.noDoc)
     return next(new ModifyError("No data matched", StatusCodes.NOT_FOUND));
@@ -114,7 +114,7 @@ export const remove = async (req, res, next) => {
       }
     );
   }
-  
+
   return res.status(200).json({ message: "done" });
 };
 
@@ -133,9 +133,12 @@ export const update = async (req, res, next) => {
   }
   if (req.body.price || req.body.discount) {
     req.body.paymentPrice =
-    (req.body.price || checkProduct.price) - ((req.body.price || checkProduct.price) *  (req.body.discount || checkProduct.discount)) / 100;
+      (req.body.price || checkProduct.price) -
+      ((req.body.price || checkProduct.price) *
+        (req.body.discount || checkProduct.discount)) /
+        100;
   }
-
+  if (req.body.quantity) req.body.stock = req.body.quantity;
   if (req.body.colors) req.body.colors = JSON.parse(req.body.colors);
   if (req.body.sizes) req.body.sizes = JSON.parse(req.body.sizes);
   if (req.files.image) {
