@@ -15,7 +15,7 @@ export const create = {
   body: Joi.object({
     address: generalFields.name.required(),
     phone: generalFields.phone.required(),
-    coupon: generalFields.name.required(),
+    coupon: generalFields.name,
     products: Joi.array().items({
       productId: generalFields.id.required(),
       quantity: Joi.number().min(0).required(),
