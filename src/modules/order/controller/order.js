@@ -188,6 +188,14 @@ export const createOrder = async (req, res, next) => {
       $pull: { products: { productId: { $in: productIDS } } },
     }
   );
+  await orderModel.updateOne(
+    {
+      _id: order._id,
+    },
+    {
+      status: "placed",
+    }
+  );
   for (const product of products) {
     await productModel.updateOne(
       { _id: product.productId },
