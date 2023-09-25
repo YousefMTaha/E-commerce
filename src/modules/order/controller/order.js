@@ -5,11 +5,11 @@ import cryptojs from "crypto-js";
 import orderModel from "../../../../DB/model/Order.model.js";
 import couponModel from "../../../../DB/model/Coupon.model.js";
 import cartModel from "../../../../DB/model/Cart.model.js";
-import Stripe from "stripe";
 import createInvoice from "../../../utils/create invoice.js";
 import { sendEmail } from "../../../utils/email.js";
 import path from "path";
 import { fileURLToPath } from "url";
+import Stripe from "stripe";
 const stripe = new Stripe(process.env.PAYMENT_SECRET_KEY);
 
 export const createOrder = async (req, res, next) => {
@@ -186,14 +186,6 @@ export const createOrder = async (req, res, next) => {
     { userId: req.user._id },
     {
       $pull: { products: { productId: { $in: productIDS } } },
-    }
-  );
-  await orderModel.updateOne(
-    {
-      _id: order._id,
-    },
-    {
-      status: "placed",
     }
   );
   for (const product of products) {
