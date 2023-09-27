@@ -10,7 +10,7 @@ import { sendEmail } from "../../../utils/email.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import Stripe from "stripe";
-const stripe = new Stripe(process.env.PAYMENT_SECRET_KEY);
+// const stripe = new Stripe(process.env.PAYMENT_SECRET_KEY);
 
 export const createOrder = async (req, res, next) => {
   const { address, coupon, phone, paymentMethod } = req.body;
@@ -147,40 +147,40 @@ export const createOrder = async (req, res, next) => {
   //   ],
   // });
 
-  if (paymentMethod == "card") {
-    if (req.body.coupon) {
-      const coupon = await stripe.coupons.create({
-        percent_off: req.body.coupon.amount,
-        duration: "once",
-      });
-      req.body.stripCoupon = coupon.id;
-    }
+  // if (paymentMethod == "card") {
+  //   if (req.body.coupon) {
+  //     const coupon = await stripe.coupons.create({
+  //       percent_off: req.body.coupon.amount,
+  //       duration: "once",
+  //     });
+  //     req.body.stripCoupon = coupon.id;
+  //   }
 
-    const payment = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
-      mode: "payment",
-      customer_email: req.user.email,
-      cancel_url: process.env.CANCEL_URL,
-      success_url: process.env.SUCCESS_URL,
-      metadata: {
-        orderId: order.id.toString(),
-      },
-      discounts: req.body.stripCoupon ? [{ coupon: req.body.stripCoupon }] : [],
-      line_items: orderProducts.map((ele) => {
-        return {
-          price_data: {
-            currency: "EGP",
-            product_data: {
-              name: ele.name,
-            },
-            unit_amount: ele.paymentPrice * 100,
-          },
-          quantity: ele.quantity,
-        };
-      }),
-    });
-    req.body.payment = payment;
-  }
+  //   const payment = await stripe.checkout.sessions.create({
+  //     payment_method_types: ["card"],
+  //     mode: "payment",
+  //     customer_email: req.user.email,
+  //     cancel_url: process.env.CANCEL_URL,
+  //     success_url: process.env.SUCCESS_URL,
+  //     metadata: {
+  //       orderId: order.id.toString(),
+  //     },
+  //     discounts: req.body.stripCoupon ? [{ coupon: req.body.stripCoupon }] : [],
+  //     line_items: orderProducts.map((ele) => {
+  //       return {
+  //         price_data: {
+  //           currency: "EGP",
+  //           product_data: {
+  //             name: ele.name,
+  //           },
+  //           unit_amount: ele.paymentPrice * 100,
+  //         },
+  //         quantity: ele.quantity,
+  //       };
+  //     }),
+  //   });
+  //   req.body.payment = payment;
+  // }
 
   await cartModel.updateOne(
     { userId: req.user._id },
@@ -215,28 +215,28 @@ export const createOrder = async (req, res, next) => {
 };
 
 export const webhook = async (req, res) => {
-  const sig = req.headers["stripe-signature"];
+  // const sig = req.headers["stripe-signature"];
 
-  const event = stripe.webhooks.constructEvent(
-    req.body,
-    sig,
-    process.env.ENDPOINT_SECRET
-  );
+  // const event = stripe.webhooks.constructEvent(
+  //   req.body,
+  //   sig,
+  //   process.env.ENDPOINT_SECRET
+  // );
 
-  if (event.type == "checkout.session.completed") {
-    const updateOrder = await orderModel.findByIdAndUpdate(
-      event.data.object.metadata.orderId,
-      {
-        status: "placed",
-      },
-      {
-        new: true,
-      }
-    );
-    res.json({ updateOrder });
-  } else {
-    console.log(`Unhandled event type ${event.type}`);
-  }
+  // if (event.type == "checkout.session.completed") {
+  //   const updateOrder = await orderModel.findByIdAndUpdate(
+  //     event.data.object.metadata.orderId,
+  //     {
+  //       status: "placed",
+  //     },
+  //     {
+  //       new: true,
+  //     }
+  //   );
+  //   res.json({ updateOrder });
+  // } else {
+  //   console.log(`Unhandled event type ${event.type}`);
+  // }
 };
 
 export const cancelOrder = async (req, res, next) => {
