@@ -9,7 +9,7 @@ import createInvoice from "../../../utils/create invoice.js";
 import { sendEmail } from "../../../utils/email.js";
 import path from "path";
 import { fileURLToPath } from "url";
-import Stripe from "stripe";
+// import Stripe from "stripe";
 // const stripe = new Stripe(process.env.PAYMENT_SECRET_KEY);
 
 export const createOrder = async (req, res, next) => {
